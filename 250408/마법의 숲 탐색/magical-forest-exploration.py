@@ -1,50 +1,60 @@
 from collections import deque
-def get_rowmax(forest, r, c, d, gol_inx):   #DFS
+def inBoard(nx,ny):
+    if 0<nx<=R-3 and 0<ny<=C:
+        return True
+    return False
+
+def get_rowmax(forest, r, c, d, gol_inx):
     r, c = r - 2, c
-    row_max = r + 1  # 본인 위치에서 갈 수 있는 최대
-    visited = [[False] * (C+1) for _ in range(R-2)]
-    map_f = []
-    map_gi = []
-    for i in range(2, R):  # R=9
-        map_f.append(forest[i])
-    for i in range(2, R):  # R=9
-        map_gi.append(gol_inx[i])
+    if r == R-4:  # R 6->9 -> 5까지 가능
+        return r + 1
+
+    row_max = r + 1
+    visited = [[False] * (C + 1) for _ in range(R - 2)]
+    map_f = forest[2:]
+    map_gi = gol_inx[2:]
+
     for dr, dc in gol:
-        visited[r+dr][c+dc] = True #본인 골렘은 갈필요 x
+        visited[r + dr][c + dc] = True
 
     myque = deque()
-    myque.append((r + gol[d][0], c+ gol[d][1], 2))  ## 출구위치에서 시작하면 무조건 같은방향 한번 더 가야함
+    myque.append((r + gol[d][0], c + gol[d][1], 2))  # 출구에서 시작
+
     while myque:
-        start_r, start_c, gate = myque.popleft()
-        for dr, dc in gol:   # 이동할 곳 탐색
-            nex_r, nex_c = start_r + dr, start_c + dc
-            if 0<nex_r<=R-3 and 0<nex_c<=C:
-                if gate == 2: #출구위치라면
-                # 아직 방문 x 골렘 위치, 어디든 이동 가능
-                    if (visited[nex_r][nex_c] == False and map_f[nex_r][nex_c] !=0):
-                        visited[nex_r][nex_c] = True
-                        myque.append((nex_r, nex_c, map_f[nex_r][nex_c])) #다음 위치 탐색
-                        row_max = max(row_max, nex_r)
-                elif gate ==1: # 그냥 골렘이라면 같은 골렘 내부만 돌 수 있음
-                    if (visited[nex_r][nex_c] == False and map_f[nex_r][nex_c] !=0) and (map_gi[start_r][start_c] == map_gi[nex_r][nex_c]):
-                        visited[nex_r][nex_c] = True
-                        myque.append((nex_r, nex_c, map_f[nex_r][nex_c])) #다음 위치 탐색
-                        row_max = max(row_max, nex_r)
+        r, c, gate = myque.popleft()
+        row_max = max(row_max, r)
+        for dr, dc in find_max:
+            n_r, n_c = r + dr, c + dc
+            if not inBoard(n_r, n_c) or visited[n_r][n_c] or map_f[n_r][n_c] == 0:
+                continue
+
+            if gate == 2:
+                visited[n_r][n_c] = True
+                myque.append((n_r, n_c, map_f[n_r][n_c]))
+
+            elif gate == 1:
+                if map_gi[r][c] == map_gi[n_r][n_c]:
+                    visited[n_r][n_c] = True
+                    myque.append((n_r, n_c, map_f[n_r][n_c]))
+
     return row_max
 
 def possible(direct, r, c):
     direction = finds[direct]
-    for dr, dc in direction:  # 남쪽 탐색
-        fr, fc = r + dr, c + dc  # 이동할 좌표 위치 탐색
-        if 0<fr<R and 0<fc<=C: # 만약에 fr fc 이동 가능
+    for dr, dc in direction:
+        fr, fc = r + dr, c + dc
+        if 0<=fr<R and 0<fc<=C: # 만약에 fr fc 이동 가능
             if forest[fr][fc] !=0: # 이미 있음
                 return False
-        else: # index 밖 범위는 이동 불가
+        else: # index 밖 범위여도 이동 불가
             return False
     return True
 
-def find_forest(forest, g_d, ci, answer, i, gol_inx): #숲이랑 골렘의 출구방향
+def in_forest(r,c):
+    return 3 <= r < R and 0 < c <= C
 
+
+def find_forest(forest, g_d, ci, answer, i, gol_inx): #숲이랑 골렘의 출구방향
     r, c = 1, ci    #골렘 시작 위치 (중심)  - 골렘 0행부터 시작
     while True:  #남쪽으로 계속 하강 먼저
         if r == R - 2:  # 중심위치 최대면
@@ -52,8 +62,8 @@ def find_forest(forest, g_d, ci, answer, i, gol_inx): #숲이랑 골렘의 출�
                 forest[r + dr][c + dc] = 1  # 위치저장
                 gol_inx[r + dr][c + dc] = i
             forest[r + gol[g_d][0]][c + gol[g_d][1]] = 2  # 출구위치 별도 저장
-            value = get_rowmax(forest, r, c, g_d, gol_inx)
-            answer += value
+
+            answer += R - 3
 
             return forest, answer, gol_inx, i
         else:
@@ -71,18 +81,19 @@ def find_forest(forest, g_d, ci, answer, i, gol_inx): #숲이랑 골렘의 출�
                 r, c = r +1 , c + 1 # 동쪽 아래로 이동
                 g_d = (g_d + 1) % 4
 
-            else:  # 갈 곳 없으면
+            else:  # 갈 곳 없으면 정착
                 for dr, dc in gol:
-                    if r+dr<=2: #몸통 밖에 나가는지 확인
+                    if in_forest(r+dr, c+dc):
+                        forest[r + dr][c + dc] = 1  # 위치저장
+                        gol_inx[r + dr][c + dc] = i
+                    else:   #골렘 빠져나감
                         forest = [[0 for _ in range(C + 1)] for _ in range(R)]
                         gol_inx = [[0 for _ in range(C + 1)] for _ in range(R)]
                         i = 0
+
                         return forest, answer, gol_inx, i
-
-                    forest[r+dr][c+dc] = 1 #위치저장
-                    gol_inx[r + dr][c + dc] = i
+                #정착 가능 하면 저장되면
                 forest[r+gol[g_d][0]][c+gol[g_d][1]] = 2   #출구위치 별도 저장
-
                 #최대위치 조사 후 저장
                 value = get_rowmax(forest, r, c, g_d, gol_inx)
                 answer += value
@@ -92,9 +103,18 @@ def find_forest(forest, g_d, ci, answer, i, gol_inx): #숲이랑 골렘의 출�
 def main():
     global forest, answer, gol_inx, i
     i=1
+    count = 0
     for c_i, di in com:
         forest, answer, gol_inx, i = find_forest(forest, di, c_i, answer, i, gol_inx) # 숲 탐색
         i+=1
+        count+=1
+        # print("++++++++++++", count)
+        # print(c_i, di)
+        # for row in forest:
+        #     print(*row)
+        # print("++++++++++++")
+        # for row in gol_inx:
+        #     print(*row)
     print(answer)
 
 if __name__=="__main__":
