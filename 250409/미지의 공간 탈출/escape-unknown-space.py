@@ -37,9 +37,10 @@ def find_exit_2d(sr, sc):
                 if space2d[nr][nc] == 3 and visited[nr][nc]==False:  #3이면
                     q.append((nr, nc))
                     visited[nr][nc] = True
-                elif space2d[nr][nc] == 0 and visited[nr][nc]==False:  #탐색위치 출구이면
-
+                elif space2d[nr][nc] == 0 and visited[nr][nc]==False:  #탐색위치 출구이면 
                     return nr, nc, i #어느 방향에서 찾았는지도
+    print(-1)
+    exit()
 
 def shift_plane(cr, cc, cp):
     left = {2:1, 1:3, 3:0, 0:2}
@@ -146,7 +147,6 @@ def get_exit_2d(sr, sc, t, diff):
 
     #만약에 없으면
     return -1
-
 
 def main():
     global space3d, space2d, bi, bj, diff
