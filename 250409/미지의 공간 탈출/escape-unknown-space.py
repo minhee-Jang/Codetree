@@ -37,21 +37,21 @@ def find_exit_2d(sr, sc):
                 if space2d[nr][nc] == 3 and visited[nr][nc]==False:  #3이면
                     q.append((nr, nc))
                     visited[nr][nc] = True
-                elif space2d[nr][nc] == 0 and visited[nr][nc]==False:  #탐색위치 출구이면 
+                elif space2d[nr][nc] == 0 and visited[nr][nc]==False:  #탐색위치 출구이면
                     return nr, nc, i #어느 방향에서 찾았는지도
     print(-1)
     exit()
 
-def shift_plane(cr, cc, cp):
+def shift_plane(cp, cr, cc):
     left = {2:1, 1:3, 3:0, 0:2}
     right = {2:0, 0:3, 3:1, 1:2}
 
     if cr<0: #위쪽으로 이탈
         if cp ==0: cp, cr, cc = 4, (M-1) - cc, M-1
-        if cp ==1: cp, cr, cc = 4, cc, 0
-        if cp ==2: cp, cr, cc = 4, M-1, cc
-        if cp ==3: cp, cr, cc = 4, 0, (M -1) - cc
-        if cp ==4: cp, cr, cc = 3, 0, (M -1) - cc
+        elif cp ==1: cp, cr, cc = 4, cc, 0
+        elif cp ==2: cp, cr, cc = 4, M-1, cc
+        elif cp ==3: cp, cr, cc = 4, 0, (M -1) - cc
+        elif cp ==4: cp, cr, cc = 3, 0, (M -1) - cc
     elif cr>=M : # 아래쪽 범위 이탈
         if cp ==4: cp, cr, cc = 2, 0, cc
         else:
@@ -88,11 +88,12 @@ def get_exit_3d(e_p, er, ec): #3d평면에서 출구 찾기
                     visit_3d[p][nr][nc] = True  #방문표시
                     space3d_count[p][nr][nc] = space3d_count[p][r][c] + 1
             else:
-                np, nr, nc = shift_plane(nr, nc, p)
+                np, nr, nc = shift_plane(p, nr, nc)
                 if visit_3d[np][nr][nc] == False and space3d[np][nr][nc] == 0:
                     q3.append((nr, nc, np))
                     visit_3d[np][nr][nc] = True
                     space3d_count[np][nr][nc] = space3d_count[p][r][c] + 1
+
 
 def diffusion(c, diff):
     for i in range(len(diff)):
