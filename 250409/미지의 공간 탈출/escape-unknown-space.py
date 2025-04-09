@@ -100,21 +100,23 @@ def diffusion(c, diff):
     for i in range(len(diff)):
         rv, cv, d, v = diff[i]
         turn = c
-        if v!=0:
-            while turn - v >= v: # 배수일 때 10, 3이면 7, 4, 1
-                turn -= v
-                nr, nc = rv + just_find[d][0], cv + just_find[d][1]  # 확산
-                if 0 <= nr < N and 0 <= nc < N:
-                    if space2d[nr][nc] == 0:
-                        space2d[nr][nc] = 1  # 확산
-                        diff[i] = [nr, nc, d, v]
-                    else:  # 확산 불가
-                        diff[i] = [rv, cv, d, 0]  # 나중에 v=0이면 무시
-                        break
+
+        while v!=0 and turn - v >= v: # 배수일 때 10, 3이면 7, 4, 1
+            turn -= v
+            nr, nc = rv + just_find[d][0], cv + just_find[d][1]  # 확산
+            if 0 <= nr < N and 0 <= nc < N:
+                if space2d[nr][nc] == 0:
+                    space2d[nr][nc] = 1  # 확산
+                    diff[i] = [nr, nc, d, v]
+                    rv, cv = nr, nc
+                else:  # 확산 불가
+                    #print("확산 불가", space2d[nr][nc])
+                    diff[i] = [rv, cv, d, 0]  # 나중에 v=0이면 무시
+                    break
 
     return diff
 
-def mini_diff(t, diff): 
+def mini_diff(t, diff):
     for i in range(len(diff)):
         rv, cv, d, v = diff[i]
         if v != 0 and t>=v: #적어도 같으면
@@ -156,15 +158,6 @@ def get_exit_2d(sr, sc, t, diff):
                         space2d_count[nr][nc] = space2d_count[r][c] + 1
                         return space2d_count[r][c] + 1
 
-                # if visit_2d[nr][nc] == False and space2d[nr][nc] == 0:  # 방문안하고 갈 수 있으면
-                #     diff = mini_diff(space2d[nr][nc], diff)
-                #     q2.append((nr, nc))
-                #     visit_2d[nr][nc] = True
-                #     space2d[nr][nc] = space2d[r][c] + 1  # 방문표시
-                #
-                # elif visit_2d[nr][nc] == False and space2d[nr][nc] == 4:  # 출구
-                #     space2d[nr][nc] = space2d[r][c] + 1
-                #     return space2d[r][c] + 1
 
     #만약에 없으면
     return -1
@@ -178,10 +171,12 @@ def main():
 
     # 그동안 미지의 공간 확산
     new_d = diffusion(count_3d, diff)
+    if space2d[ex2i][ex2j] == 1:
+        answer = -1
+    else:
+        space2d_count[ex2i][ex2j] = count_3d + 1  # 2D 탈출 시작
 
-    space2d_count[ex2i][ex2j] = count_3d + 1  # 2D 탈출 시작
-
-    answer = get_exit_2d(ex2i, ex2j,  count_3d + 1, new_d)
+        answer = get_exit_2d(ex2i, ex2j,  count_3d + 1, new_d)
     print(answer)
 
 if __name__ == "__main__":
