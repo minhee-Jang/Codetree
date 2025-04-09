@@ -118,7 +118,7 @@ def mini_diff(t, diff):
         if v != 0:
             if t%v == 0:  #그때 그시간 배수이면
                 nr, nc = rv + just_find[d][0], cv + just_find[d][1]  # 확산
-                if 0<=nr<N and 0<=nc<M:
+                if 0<=nr<N and 0<=nc<N:
                     if space2d[nr][nc] == 0:
                         space2d[nr][nc] = 1  # 확산
                         diff[i] = [nr, nc, d, v]
