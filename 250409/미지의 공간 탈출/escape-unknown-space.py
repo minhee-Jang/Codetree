@@ -148,9 +148,6 @@ def get_exit_2d(sr, sc, t, diff):
     return -1
 
 
-
-
-
 def main():
     global space3d, space2d, bi, bj, diff
     ex2i, ex2j, d = find_exit_2d(bi, bj)     #2차원 이어지는 탈출구 위치
