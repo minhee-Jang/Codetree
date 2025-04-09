@@ -1,3 +1,10 @@
+############# 실패요소
+# Diffusion 시 확산 이후 좌표 업뎃 안하고 while 문 돌린점
+# find_exit_2d 시작 시 이미 탈출구까지 시간 확산이 될 수 있다는 점
+# 확산 이동보다 먼저 일어난다는 점 
+# space2d에 루트 기록하다가 1이 장애물과 겹칠 수 있다는 점 
+
+
 from collections import deque
 def base_loc(plain, tar):
     for i in range(len(plain)):
