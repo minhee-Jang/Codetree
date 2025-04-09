@@ -116,13 +116,14 @@ def mini_diff(t, diff):
     for i in range(len(diff)):
         rv, cv, d, v = diff[i]
         if v != 0:
-            if t%d == 0:  #그때 그시간 배수이면
+            if t%v == 0:  #그때 그시간 배수이면
                 nr, nc = rv + just_find[d][0], cv + just_find[d][1]  # 확산
-                if space2d[nr][nc] == 0:
-                    space2d[nr][nc] = 1  # 확산
-                    diff[i] = [nr, nc, d, v]
-                else:  # 확산 불가
-                    diff[i] = [rv, cv, d, 0]  # 나중에 v=0이면 무시
+                if 0<=nr<N and 0<=nc<M:
+                    if space2d[nr][nc] == 0:
+                        space2d[nr][nc] = 1  # 확산
+                        diff[i] = [nr, nc, d, v]
+                    else:  # 확산 불가
+                        diff[i] = [rv, cv, d, 0]  # 나중에 v=0이면 무시
     return diff
 
 def get_exit_2d(sr, sc, t, diff):
