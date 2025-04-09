@@ -27,6 +27,7 @@ def find_exit_2d(sr, sc):
     visited = [[False for _ in range(N)] for _ in range(N)] #visited 배열
     q = deque()
     q.append((sr, sc))
+    visited[sr][sc] = True
 
     while q:
         r, c = q.popleft()
@@ -55,7 +56,7 @@ def shift_plane(cp, cr, cc):
     elif cr>=M : # 아래쪽 범위 이탈
         if cp ==4: cp, cr, cc = 2, 0, cc
         else:
-            cp, cr, cr = cp, cr -1, cc    #다시 제자리로
+            cp, cr, cc = cp, cr -1, cc    #다시 제자리로
     elif cc<0: #왼쪽으로 이탈
         if cp==4: cp, cr, cc = 1, 0, cr
         else:
@@ -103,19 +104,20 @@ def diffusion(c, diff):
             while turn - v >= v: # 배수일 때 10, 3이면 7, 4, 1
                 turn -= v
                 nr, nc = rv + just_find[d][0], cv + just_find[d][1]  # 확산
-                if space2d[nr][nc] == 0:
-                    space2d[nr][nc] = 1  # 확산
-                    diff[i] = [nr, nc, d, v]
-                else:  # 확산 불가
-                    diff[i] = [rv, cv, d, 0]  # 나중에 v=0이면 무시
-                    break
+                if 0 <= nr < N and 0 <= nc < N:
+                    if space2d[nr][nc] == 0:
+                        space2d[nr][nc] = 1  # 확산
+                        diff[i] = [nr, nc, d, v]
+                    else:  # 확산 불가
+                        diff[i] = [rv, cv, d, 0]  # 나중에 v=0이면 무시
+                        break
 
     return diff
 
-def mini_diff(t, diff):
+def mini_diff(t, diff): 
     for i in range(len(diff)):
         rv, cv, d, v = diff[i]
-        if v != 0:
+        if v != 0 and t>=v: #적어도 같으면
             if t%v == 0:  #그때 그시간 배수이면
                 nr, nc = rv + just_find[d][0], cv + just_find[d][1]  # 확산
                 if 0<=nr<N and 0<=nc<N:
@@ -127,6 +129,8 @@ def mini_diff(t, diff):
     return diff
 
 def get_exit_2d(sr, sc, t, diff):
+    global space2d_count
+
     time = t  #3D 완전 탈출까지 +=1 더
     visit_2d = [[False for _ in range(N)] for _ in range(N)]
     q2 = deque()
@@ -135,23 +139,38 @@ def get_exit_2d(sr, sc, t, diff):
 
     while q2:
         r, c = q2.popleft()
+        flag = True
         for i in range(4):
             nr, nc = r + just_find[i][0], c + just_find[i][1] # 방향찾기
             if 0<=nr<N and 0<=nc<N:
-                if visit_2d[nr][nc]==False and space2d[nr][nc]==0: #방문안하고 갈 수 있으면
-                    q2.append((nr, nc))
-                    visit_2d[nr][nc] = True
-                    space2d[nr][nc] = space2d[r][c] + 1   #방문표시
-                    diff = mini_diff(space2d[nr][nc], diff)
-                elif visit_2d[nr][nc]==False and space2d[nr][nc]==4: # 출구
-                    space2d[nr][nc] = space2d[r][c] + 1
-                    return space2d[r][c] + 1
+                if visit_2d[nr][nc]==False:
+                    if flag:
+                        diff = mini_diff(space2d_count[r][c] + 1, diff)   #확산 먼저
+                        flag = False
+                    if space2d[nr][nc] == 0:
+                        q2.append((nr, nc))
+                        visit_2d[nr][nc] = True
+                        space2d_count[nr][nc] = space2d_count[r][c] + 1   #방문표시
+
+                    elif space2d[nr][nc]==4: # 출구
+                        space2d_count[nr][nc] = space2d_count[r][c] + 1
+                        return space2d_count[r][c] + 1
+
+                # if visit_2d[nr][nc] == False and space2d[nr][nc] == 0:  # 방문안하고 갈 수 있으면
+                #     diff = mini_diff(space2d[nr][nc], diff)
+                #     q2.append((nr, nc))
+                #     visit_2d[nr][nc] = True
+                #     space2d[nr][nc] = space2d[r][c] + 1  # 방문표시
+                #
+                # elif visit_2d[nr][nc] == False and space2d[nr][nc] == 4:  # 출구
+                #     space2d[nr][nc] = space2d[r][c] + 1
+                #     return space2d[r][c] + 1
 
     #만약에 없으면
     return -1
 
 def main():
-    global space3d, space2d, bi, bj, diff
+    global space3d, space2d, bi, bj, diff, space2d_count
     ex2i, ex2j, d = find_exit_2d(bi, bj)     #2차원 이어지는 탈출구 위치
     exit_p, ex3i, ex3j = find_exit_3d(ex2i, ex2j, d)   #3차원에서 탈출위치
 
@@ -160,7 +179,7 @@ def main():
     # 그동안 미지의 공간 확산
     new_d = diffusion(count_3d, diff)
 
-    space2d[ex2i][ex2j] = count_3d + 1  # 2D 탈출 시작
+    space2d_count[ex2i][ex2j] = count_3d + 1  # 2D 탈출 시작
 
     answer = get_exit_2d(ex2i, ex2j,  count_3d + 1, new_d)
     print(answer)
@@ -169,6 +188,7 @@ if __name__ == "__main__":
 
     N, M, F = map(int, input().split())
     space2d = [[[] for _ in range(N)] for _ in range(N)]
+    space2d_count = [[0 for _ in range(N)] for _ in range(N)]
     space3d = [[[[] for _ in range(M)] for _ in range(M)] for _ in range(5)]  #동서남북윗면 순서
     space3d_count = [[[0 for _ in range(M)] for _ in range(M)] for _ in range(5)]
     #동 : 0, 서 : 1, 남 :2 북:3 윗면:4
