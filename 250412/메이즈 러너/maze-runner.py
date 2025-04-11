@@ -24,6 +24,8 @@ for r, c in locPeo:
     curPeo[r][c].append("p") # 사람표시
 
 def people_move(b, p, er, ec): #board랑 peeple위치
+    global count 
+    
     turn = 0 # 이번 턴 사람 이동 
     newP = []
     newcP = [[[] for _ in range(N)] for _ in range(N)]
