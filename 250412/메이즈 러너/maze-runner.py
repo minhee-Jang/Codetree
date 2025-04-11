@@ -40,7 +40,8 @@ def people_move(b, p, er, ec): #board랑 peeple위치
                     break # 이동가능하면 바로 옮김
 
                 elif b[nr][nc] == -1: #출구라면
-                    turn +=1 
+                    turn +=1
+                    count +=1 
                     break  #사람 넣을 필요 없음
             dir4 +=1
 
@@ -126,15 +127,16 @@ flag = True
 for _ in range(K):
 
     uplocPeo, ans, upcurPeo = people_move(updateBoard, uplocPeo, er, ec)  #사람이동
-    rectN, rectr, rectc = find_rect(uplocPeo, er, ec)  #rectangle 좌표
-    updateBoard, er, ec, upcurPeo, uplocPeo = rotate(rectN, rectr, rectc, updateBoard, upcurPeo, er, ec)
-
-    answer += ans
     if count == M: #사람수만큼 탈출했으면
         print(answer)
         print(er, ec)
         flag = False
         break
+    rectN, rectr, rectc = find_rect(uplocPeo, er, ec)  #rectangle 좌표
+    updateBoard, er, ec, upcurPeo, uplocPeo = rotate(rectN, rectr, rectc, updateBoard, upcurPeo, er, ec)
+
+    answer += ans
+    
 if flag:
     #답구하고 종료
     print(answer)
