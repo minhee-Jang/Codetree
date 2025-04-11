@@ -22,42 +22,41 @@ board[er][ec] = -1  #출구는 항상 -1
 
 for r, c in locPeo:
     curPeo[r][c].append("p") # 사람표시
-
+ 
 def people_move(b, p, er, ec): #board랑 peeple위치
-    global count 
-    
+    global count
+
     turn = 0 # 이번 턴 사람 이동 
     newP = []
     newcP = [[[] for _ in range(N)] for _ in range(N)]
     for pr, pc in p: 
-        curDis = abs(pr - er) + abs(pc - ec)   # 지금 위치랑 출구 거리
-        dir4 = 0
+        curDis = abs(pr - er) + abs(pc - ec)   # 현재 위치와 출구 거리
+        moved = False
         for dr, dc in d4:
-            nr, nc = pr + dr, pc + dc   # 탐색 위치
-            nexDis = abs(nr - er) + abs(nc - ec)    #다음위치랑 출구 거리
-            if 0<=nr<N and 0<=nc<N: #좌표 갈 수 있고
-                if b[nr][nc] == 0 and curDis>nexDis: # 벽이 아니고 거리가 더 짧아지는 조건이면
+            nr, nc = pr + dr, pc + dc
+            if 0 <= nr < N and 0 <= nc < N:
+                nexDis = abs(nr - er) + abs(nc - ec)
+                if b[nr][nc] == 0 and curDis > nexDis:
+                    newP.append((nr, nc))
                     turn += 1
-                    newP.append((nr, nc)) #다음 좌표
-                    break # 이동가능하면 바로 옮김
-
-                elif b[nr][nc] == -1: #출구라면
-                    turn +=1
-                    count +=1 
-                    break  #사람 넣을 필요 없음
-            dir4 +=1
-
-        #좌표 갈수 없으면
-        if dir4 == 4:  
-            newP.append((pr, pc)) 
+                    moved = True
+                    break
+                elif b[nr][nc] == -1:
+                    count += 1
+                    turn += 1 
+                    moved = True
+                    break
+        if not moved:
+            newP.append((pr, pc))  # 이동 못 하면 제자리
     for r, c in newP: #사람 옮겨심기기
         newcP[r][c].append(("p"))
 
     
-    return newP, turn, newcP
+    return newP, turn, newcP, count
 
 def find_rect(p, er, ec): #board랑 people
     minRect = [] 
+
     for r, c in p:
         maxr = max(r, er)
         minr = min(r, er)
@@ -96,10 +95,12 @@ def rotate(n, rr, rc, b, cp, er, ec):
                 testarr[j][n-i-1] = arr[i][j]  #그냥 0과 -1 업데이트
 
             #사람회전
-            if cp[i][j]: # 사람있는 곳이라면 
-                cp[i][j].pop() #한명 빼기기
+            if cp[i][j]: # 사람있는 곳이라면  
                 ni, nj = j, n-i -1   #새로운 좌표로
-                locP.append((ni, nj))
+                for _ in range(len(cp[i][j])):
+                    locP.append((ni, nj)) 
+                cp[i][j] = []
+                
   
     for r, c in locP: #사람 옮겨심기기
         cp[r][c].append(("p"))
@@ -115,7 +116,8 @@ def rotate(n, rr, rc, b, cp, er, ec):
     for i in range(N):
         for j in range(N):
             if newcP[i][j]:
-                locP.append((i, j)) 
+                for _ in range(len(newcP[i][j])):
+                    locP.append((i, j)) 
     return newb, er, ec, newcP, locP    #새로운 board, er, ec, curPeop
 
 exitPeople = 0
@@ -124,11 +126,11 @@ uplocPeo = locPeo
 upcurPeo = curPeo
 updateBoard = board
 count = 0
-flag = True
-
-for _ in range(K):
-
-    uplocPeo, ans, upcurPeo = people_move(updateBoard, uplocPeo, er, ec)  #사람이동
+flag = True 
+#print(upcurPeo)
+for i in range(K): 
+    uplocPeo, ans, upcurPeo, count = people_move(updateBoard, uplocPeo, er, ec)  #사람이동
+    answer += ans 
     if count == M: #사람수만큼 탈출했으면
         print(answer)
         print(er, ec)
@@ -137,7 +139,7 @@ for _ in range(K):
     rectN, rectr, rectc = find_rect(uplocPeo, er, ec)  #rectangle 좌표
     updateBoard, er, ec, upcurPeo, uplocPeo = rotate(rectN, rectr, rectc, updateBoard, upcurPeo, er, ec)
 
-    answer += ans
+    
     
 if flag:
     #답구하고 종료
