@@ -22,7 +22,8 @@ board[er][ec] = -1  #출구는 항상 -1
 
 for r, c in locPeo:
     curPeo[r][c].append("p") # 사람표시
-print(curPeo)
+
+
 def people_move(b, p, er, ec): #board랑 peeple위치
     global count
 
@@ -44,7 +45,6 @@ def people_move(b, p, er, ec): #board랑 peeple위치
                 elif b[nr][nc] == -1:
                     count += 1
                     turn += 1
-                    print("exit")
                     moved = True
                     break
         if not moved:
@@ -52,12 +52,11 @@ def people_move(b, p, er, ec): #board랑 peeple위치
     for r, c in newP: #사람 옮겨심기기
         newcP[r][c].append(("p"))
 
-    print("move", newP)
     return newP, turn, newcP, count
 
 def find_rect(p, er, ec): #board랑 people
     minRect = [] 
-    print(p)
+
     for r, c in p:
         maxr = max(r, er)
         minr = min(r, er)
@@ -66,7 +65,6 @@ def find_rect(p, er, ec): #board랑 people
 
         # 제일 괜찮은 애로 업데이트
         #한변의 길이 
-        print(maxr, minr, maxc, minc, er, ec, r, c)
         n = max(maxr-minr, maxc-minc)   #한변의 길이 
         # r과 c가 작은 순으로
         minr = max(maxr-n, 0)
@@ -88,7 +86,6 @@ def rotate(n, rr, rc, b, cp, er, ec):
     arr = [row[rc:rc+n] for row in b[rr:rr+n]]
     testarr = deepcopy(arr)
     cp = [row[rc:rc+n+1] for row in cp[rr:rr+n+1]] 
-    print("arry", arr, rr, rc, n)
     
     for i in range(0, n):
         for j in range(0, n): 
@@ -122,7 +119,6 @@ def rotate(n, rr, rc, b, cp, er, ec):
             if newcP[i][j]:
                 for _ in range(len(newcP[i][j])):
                     locP.append((i, j)) 
-    print('roate', locP, newcP)
     return newb, er, ec, newcP, locP    #새로운 board, er, ec, curPeop
 
 exitPeople = 0
@@ -132,18 +128,14 @@ upcurPeo = curPeo
 updateBoard = board
 count = 0
 flag = True
-print(uplocPeo)
+
 #print(upcurPeo)
 for i in range(K):
-    print(i)
-    for j in range(N):
-        print(upcurPeo[j])
-        print(updateBoard[j])
     uplocPeo, ans, upcurPeo, count = people_move(updateBoard, uplocPeo, er, ec)  #사람이동
     answer += ans 
     if count == M: #사람수만큼 탈출했으면
         print(answer)
-        print(er, ec)
+        print(er+1, ec+1)
         flag = False
         break
     rectN, rectr, rectc = find_rect(uplocPeo, er, ec)  #rectangle 좌표
