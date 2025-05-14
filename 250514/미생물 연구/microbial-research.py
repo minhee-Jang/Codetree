@@ -89,8 +89,17 @@ def moveOrgan(p, s):
                 for r in range(N): 
                     if r + lr< N and c + lc < N: # 자르기 가능
                         subgrid = [row[c:c+lc+1] for row in newBoard[r:r+lr+1]]
-                        total = sum(sum(row) for row in subgrid)
-                        if total == 0:  # 배치 가능
+                        # total = sum(sum(row) for row in subgrid)
+                        # 임의로 배치 해보기 
+                        sr, sc = minr , minc  
+                        for a, b in p[id]: # 해당 좌표 리스트에서 
+                            if subgrid[a - sr][b - sc] == 0: 
+                                placed = True
+                            else:
+                                placed = False
+                                break
+
+                        if placed:  # 배치 가능
                             dr, dc = minr - r, minc - c
                             newp = []
                             for a, b in p[id]: # 해당 좌표 리스트에서 
@@ -144,15 +153,12 @@ if __name__=="__main__":
 
     for i in range(1, Q+1):
         n = inList[i-1] 
-        pList, sList = putOrgan(pList, sList, n, board, i)
-        #print(i)
+        pList, sList = putOrgan(pList, sList, n, board, i) 
         #print(board)
-        pList, sList, board = moveOrgan(pList, sList)
-        #print(i)
+        pList, sList, board = moveOrgan(pList, sList) 
         #print(board)
         sList = sorted(sList, key=lambda x:x[1])  #index 정렬
-        touchList = saveResult(board)
-        #print(i)
+        touchList = saveResult(board) 
         #print(touchList)
         answer = 0
         #print(sList)
@@ -160,35 +166,3 @@ if __name__=="__main__":
             for id1, id2 in touchList:
                 answer += sList[id1][0] * sList[id2][0]
         print(answer)
-
-
-
-
-
-
-    # 실험시작
-    # for r, c, r, c-> put하면 
-    # put organ -> new: 넓이/ 좌표 리스트 변환/ i=1부터 넣어라
-    # move Organ -> 넓이 기준으로 좌표 이동. 좌표 리스트 업데이트 
-    # result는 계산
-    # 이후 다시 put organ -> 좌표리스트 그대로, 새로운 미생물만 put -> 좌표리스트, 넓이 리스트 업뎃 
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
