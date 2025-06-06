@@ -42,25 +42,29 @@ def makeUs(f, b, boss):  # 대표리스트, 신봉음식, 신앙심
     for i in range(len(boss)):
         if boss[i]:
             boss[i] = sorted(boss[i], key=lambda x:(-x[0], x[1], x[2]))   
+    #print("boss", boss)
     # 전파시작
+    flag = False
     for i in range(3): # 세 그룹 순서대로
-        for bvalue, ar, ac in boss[i]: # 대표 전파자 정보
+        for bvalue, ar, ac in boss[i]: # 대표 전파자 정보 
+
             if defence[ar][ac] == False: # 방어태세 아님
                 x = bvalue - 1
                 direct = bvalue % 4 # 전파 방향
                 b[ar][ac] = 1   # 1만 남기고
-
+            
     #       x>y이면 강한 전파 : 전파 대상은 전파자의 사상에 완전히 동화, 동일 음식 신봉 / 전파자 y+1만큼 간절함 까임, 전파 대상은 신앙심 1 증가
     #       x<=y 이면 약한전파 : 전파 대상은 전파자가 전파한 음식의 모든 기본 음식에 관심, -> 자기꺼 + 전파자꺼 모두합친음식을 신봉 / 전파자 간절함 모두 소진, 전파 대상 신앙심은 x 만큼 증가
                 br, bc = ar, ac
-                while x>0:
+                while x>0: 
                     nr, nc = br + d[direct][0], bc + d[direct][1]   
                     if (0<=nr<N and 0<=nc<N) and (f[br][bc] != f[nr][nc]):  # 전파 할 수 있으묜
-                        if x>b[nr][nc]: # 전파 대상의 신앙심이 간절함보다 작을때 -> 강한 전파
-                            f[nr][nc] = f[br][bc]  # 신봉 음식 동일해짐
+                        if x>b[nr][nc]: # 전파 대상의 신앙심이 간절함보다 작을때 -> 강한 전파 
+                            f[nr][nc] = [f[br][bc][0]]  # 신봉 음식 동일해짐
+                            #print("강한전파", f[nr][nc])
                             x -= (b[nr][nc] + 1) # 간절함 까임
                             b[nr][nc] += 1  
-                        else: # 약한전파
+                        else: 
                             #newfood = ''.join(sorted(set(f[nr][nc]+f[br][bc])))
                             for a in f[br][bc][0]: # 전파 대상의 음식까지 관심을 가져야함
                                 if a not in f[nr][nc][0]:
@@ -68,6 +72,7 @@ def makeUs(f, b, boss):  # 대표리스트, 신봉음식, 신앙심
                                     #f[nr][nc].append(a)   # 없으면 추가
                             f[nr][nc] = sorted(f[nr][nc][0])
                             f[nr][nc] = [''.join(f[nr][nc])]   # 한 문자로 바꿈 
+                            #print("약한전파", f[nr][nc])
                             b[nr][nc] += x
                             x = 0
                         for h in range(3):
@@ -75,8 +80,10 @@ def makeUs(f, b, boss):  # 대표리스트, 신봉음식, 신앙심
                                 if nr == boss[h][k][1] and nc == boss[h][k][2]:
                                     defence[nr][nc] = True  # 전파된 곳 방어태세 on
                     elif (0<=nr<N and 0<=nc<N) and (f[br][bc] == f[nr][nc]):   # 갈수 있지만 전파 필요 x -> 패스
+                        #print('전파불필요')
                         pass
-                    else:  # 격자밖으로 나가면 
+                    elif not (0<=nr<N and 0<=nc<N):
+                        #print('격자 벗어남')
                         break  # 전파 종료
                     br, bc = nr, nc  # 다음 턴
 
@@ -113,8 +120,7 @@ if __name__=="__main__":
         boss, B = pickBoss(food, B)   # 대표리스트
 
         # 3. 저녁시간
-        food, B = makeUs(food, B, boss)
-
+        food, B = makeUs(food, B, boss) 
         #CMT, CT, MT, CM, M, C, T
         ans = [0 for _ in range(7)]
         # T 민트 1 C 초코 2 M 우유 3
