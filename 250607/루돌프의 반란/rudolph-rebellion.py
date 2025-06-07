@@ -1,3 +1,4 @@
+#N 50 P 30 M 1000
 RuDirect = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (-1, 1), (1, 1), (-1, -1)]  #8
 SanDirect = [(-1, 0), (0, 1), (1, 0), (0, -1)] #상우하좌
 
@@ -6,7 +7,7 @@ def chainSanta(curP, nr, nc, dr, dc, game, killSanta): # 밀려날 곳, 방향, 
     nextP = game[nr][nc]  # 밀려나야할 곳에 앉아있는 산타
     flag = True
 
-    while flag:
+    while flag: #O(N)
         r, c = nr + dr, nc +dc
         game[nr][nc] = curP # 현재 산타 다음 위치로 이동
 
@@ -38,16 +39,13 @@ def checkSleep(p, sleep):
 
     if flag:
         sleep.append([p, 2])
-
     return sleep
 
-
-
-def moveRudolph(game, r, c, killSanta, sleep, score):  #
+def moveRudolph(game, r, c, killSanta, sleep, score): 
     global santa
 
     survival = []
-    for i in range(1,P+1):
+    for i in range(1,P+1):   #O(P)
         if i not in killSanta:
             survival.append((i, santa[i][0], santa[i][1]))
     mindist = float('inf')
@@ -67,11 +65,8 @@ def moveRudolph(game, r, c, killSanta, sleep, score):  #
             dist = (Rr - minSR) **2 + (Rc - minSC)**2
             if dist < mindist: #더 작다면
                 nr, nc = Rr, Rc
-                mindist = dist
+                mindist = dist 
 
-    # 좌표 뽑기 -> 충돌하는 상황 고려 -> santa, sleep 고려해줘야함
-    #sortGoWhere = sorted(gowhere, key=lambda x: (-x[0], -x[1]))
-    #nr, nc = sortGoWhere[0][2], sortGoWhere[0][3]
     if game[nr][nc]>0: # 이동위치에 산타가 있으면
         killingp = game[nr][nc]
         dr, dc = (nr - r) , (nc - c)  #방향
@@ -104,12 +99,7 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
 
     sleeping = []  # 현재 턴 기절
     for i in range(len(sleep)):
-        sleeping.append((sleep[i][0]))
-
-    # survival = []
-    # for i in range(1, P + 1):
-    #     if i not in killSanta:
-    #         survival.append((i, santa[i][0], santa[i][1]))
+        sleeping.append((sleep[i][0])) 
 
     for i in range(1, P+1): #탈락한 산타 없음
         p, pr, pc = i, santa[i][0], santa[i][1]
@@ -128,8 +118,7 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
                             nr, nc = Sr, Sc #움직일 좌표
                             flag = True
                             mindist = dist
-                            #print(p, nr, nc, '로 이동')
-            #print(p, flag, nr, nc)
+    
             if flag:  # 이동가능
                 if game[nr][nc] == -1:  # 루돌프 있으면 충돌
                     dr, dc = (pr - nr), (pc - nc)
@@ -157,9 +146,7 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
                     game[nr][nc] = p
                     game[pr][pc] = 0
 
-
     return game, sleep, score, killSanta # 루돌프의 위치, Game map Update , 기절된 애들 받아줘야함
-
 
 if __name__=="__main__":  #index 주의
 
@@ -180,7 +167,7 @@ if __name__=="__main__":  #index 주의
 
     killSanta = []  #index로 들어가기 1~P
 
-    for a in range(M):
+    for a in range(M):  #O(M*P)
         Rr, Rc, game, sleep, score, killSanta = moveRudolph(game, Rr, Rc, killSanta, sleep, score)
         game, sleep, score, killSanta = moveSanta(game, Rr, Rc, killSanta, sleep, score)
 
