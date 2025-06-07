@@ -112,7 +112,7 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
                    
                     if 0 <= nr + dr * D < N and 0 <= nc + dc * D < N:  # 밀려남
                         # 여기에도 산타가 있으면
-                        if game[nr+dr*D][nc+dc*D]>0:
+                        if game[nr+dr*D][nc+dc*D]>0 and game[nr+dr*D][nc+dc*D]!=p:
                             sr, sc = nr + dr * D, nc + dc * D
                             game, killSanta = chainSanta(p, sr, sc, dr, dc, game, killSanta)
                         else: # 없으면
