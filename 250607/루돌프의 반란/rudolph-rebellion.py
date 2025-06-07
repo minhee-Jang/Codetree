@@ -9,9 +9,10 @@ def chainSanta(curP, nr, nc, dr, dc, game, killSanta): # 밀려날 곳, 방향, 
     while flag:
         r, c = nr + dr, nc +dc
         game[nr][nc] = curP # 현재 산타 다음 위치로 이동
+
         santa[curP] = (nr, nc)
         curP = nextP
-
+        #print(curP,r,c, game[r][c])
         if 0 <= r < N and 0 <= c < N:
             if game[r][c]> 0: # 또 산타가 있음
                 nextP = game[r][c]
@@ -28,6 +29,20 @@ def chainSanta(curP, nr, nc, dr, dc, game, killSanta): # 밀려날 곳, 방향, 
 
     return game, killSanta
 
+def checkSleep(p, sleep):
+    flag = True
+    for i in range(len(sleep)):
+        if sleep[i][0] ==p:
+            sleep[i] = [p,2]
+            flag = False
+
+    if flag:
+        sleep.append([p, 2])
+
+    return sleep
+
+
+
 def moveRudolph(game, r, c, killSanta, sleep, score):  #
     global santa
 
@@ -35,7 +50,7 @@ def moveRudolph(game, r, c, killSanta, sleep, score):  #
     for i in range(1,P+1):
         if i not in killSanta:
             survival.append((i, santa[i][0], santa[i][1]))
-    mindist = N*N
+    mindist = float('inf')
 
     prior = []
     for i in range(len(survival)):
@@ -58,26 +73,29 @@ def moveRudolph(game, r, c, killSanta, sleep, score):  #
     #sortGoWhere = sorted(gowhere, key=lambda x: (-x[0], -x[1]))
     #nr, nc = sortGoWhere[0][2], sortGoWhere[0][3]
     if game[nr][nc]>0: # 이동위치에 산타가 있으면
+        killingp = game[nr][nc]
         dr, dc = (nr - r) , (nc - c)  #방향
         if 0<=nr+dr*C<N and 0<=nc+dc*C<N:
             if game[nr+dr*C][nc+dc*C]>0 : # 거기에도 산타가 있으면
                 sr, sc = nr + dr*C, nc + dc*C
-                game, killSanta = chainSanta(game[nr][nc], sr, sc, dr, dc, game, killSanta)
+                game, killSanta = chainSanta(killingp, sr, sc, dr, dc, game, killSanta)
             else:  # 거기에 산타 없으면 그냥 이동
-                santa[game[nr][nc]] = (nr + dr*C, nc + dc*C)
-                game[nr + dr * C][nc + dc * C] = game[nr][nc]
+                santa[killingp] = (nr + dr*C, nc + dc*C)
+                game[nr + dr * C][nc + dc * C] = killingp
 
-            sleep.append([game[nr][nc], 2])  # 기절 산타
-            score[game[nr][nc]] += C
+            sleep = checkSleep(killingp, sleep)
+            #sleep.append([killingp, 2])  # 기절 산타
+            score[killingp] += C
             game[nr][nc] = 0
+
         else:
-            killSanta.append(game[nr][nc])
-            score[game[nr][nc]] += C
+            killSanta.append(killingp)
+            score[killingp] += C
             game[nr][nc] = 0
-
+ 
     #루돌프 위치 업뎃
     game[r][c] = 0
-    game[nr][nc] = -1  #
+    game[nr][nc] = -1
 
     return nr, nc, game, sleep, score, killSanta # 루돌프의 위치, Game map Update , 기절된 애들 받아줘야함
 
@@ -88,16 +106,17 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
     for i in range(len(sleep)):
         sleeping.append((sleep[i][0]))
 
-    survival = []
-    for i in range(1, P + 1):
-        if i not in killSanta:
-            survival.append((i, santa[i][0], santa[i][1]))
+    # survival = []
+    # for i in range(1, P + 1):
+    #     if i not in killSanta:
+    #         survival.append((i, santa[i][0], santa[i][1]))
 
-    for i in range(len(survival)): #탈락한 산타 없음
-        p, pr, pc = survival[i]
+    for i in range(1, P+1): #탈락한 산타 없음
+        p, pr, pc = i, santa[i][0], santa[i][1]
 
-        if p not in sleeping:  # 기절 아니라면 진행
-            mindist = N*N
+        if p not in sleeping and p not in killSanta:  # 기절 아니라면 진행
+
+            mindist = float('inf')
             flag = False
             for j in range(4):
                 Sr, Sc = pr + SanDirect[j][0], pc + SanDirect[j][1]
@@ -105,19 +124,18 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
                     if game[Sr][Sc] <= 0:  # 다른 산타가 있으면 갈 수 없음
                         dist = (Rr - Sr) **2 + (Rc - Sc)**2
                         curdist = (Rr - pr) **2 + (Rc - pc)**2
-
                         if curdist>dist and dist<mindist:  #거리가 작아지면 바로 update
                             nr, nc = Sr, Sc #움직일 좌표
                             flag = True
                             mindist = dist
                             #print(p, nr, nc, '로 이동')
-
+            #print(p, flag, nr, nc)
             if flag:  # 이동가능
                 if game[nr][nc] == -1:  # 루돌프 있으면 충돌
                     dr, dc = (pr - nr), (pc - nc)
-
                     if 0 <= nr + dr * D < N and 0 <= nc + dc * D < N:  # 밀려남
                         # 여기에도 산타가 있으면
+
                         if game[nr + dr * D][nc + dc * D] > 0:
                             if game[nr + dr * D][nc + dc * D] != p:
                                 sr, sc = nr + dr * D, nc + dc * D
@@ -128,7 +146,7 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
                             game[nr + dr * D][nc + dc * D] = p  # 산타 이동
                             santa[p] = (nr + dr * D, nc + dc * D)
                             game[pr][pc] = 0
-                        sleep.append([p, 2])
+                        sleep = checkSleep(p, sleep)
                     else:
                         killSanta.append(p)
                         game[pr][pc] = 0
@@ -138,6 +156,7 @@ def moveSanta(game, Rr, Rc, killSanta, sleep, score):
                     santa[p] = (nr, nc)
                     game[nr][nc] = p
                     game[pr][pc] = 0
+
 
     return game, sleep, score, killSanta # 루돌프의 위치, Game map Update , 기절된 애들 받아줘야함
 
@@ -159,16 +178,13 @@ if __name__=="__main__":  #index 주의
         game[r-1][c-1] = n
     game[Rr][Rc] = -1 #루돌프
 
-
     killSanta = []  #index로 들어가기 1~P
 
-    for _ in range(M):
-
+    for a in range(M):
         Rr, Rc, game, sleep, score, killSanta = moveRudolph(game, Rr, Rc, killSanta, sleep, score)
         game, sleep, score, killSanta = moveSanta(game, Rr, Rc, killSanta, sleep, score)
 
         #턴이 종료하면
-
         new = []
         for i in range(len(sleep)):
             if sleep[i][1]>1:
