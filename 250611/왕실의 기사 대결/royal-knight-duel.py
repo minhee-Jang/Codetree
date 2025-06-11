@@ -9,9 +9,11 @@ def moveKnight(knight, locKnight, k, d):
     newlocKnight = {i: [] for i in range(1, N + 1)}  # knight 좌표
     stack = [k] # 밀쳐질 기사
     noDam = []
+    visited = [False for _ in range(N+1)]
 
     while stack:
         ki = stack.pop()
+        visited[ki] = True
         if physical[ki]>0 : # 살아있는 기사
             for r, c in locKnight[ki]: # 좌표 값
                 nr, nc = r + D[d][0], c + D[d][1]  # 이동방향
@@ -19,11 +21,11 @@ def moveKnight(knight, locKnight, k, d):
                     newlocKnight[ki].append((nr, nc))
                     newKnight[nr][nc] = ki
                     if (knight[nr][nc] != ki and knight[nr][nc] > 0):
-                        if knight[nr][nc] not in stack: # 다른 기사 만남.
+                        if not visited[knight[nr][nc]]: # 다른 기사 만남.
                             stack.append(knight[nr][nc])
+                            visited[knight[nr][nc]] = True
                 else:
                     return knight, locKnight, noDam, False # Damge 계산 x
-
 
     for i in range(1, N+1):
         if len(newlocKnight[i]) == 0 and physical[i]>0: # 밀리지 않음
@@ -31,8 +33,6 @@ def moveKnight(knight, locKnight, k, d):
             for r, c in newlocKnight[i]:
                 newKnight[r][c] = i
             noDam.append(i)
-
-
     return  newKnight, newlocKnight, noDam, True # Damge 계산
 
 def damage(locKnight, knight, ans, k, no):  # 위치 계산 / 죽으면 좌표 없애
@@ -89,5 +89,3 @@ if __name__=="__main__":
         if physical[i]>0:
             sum += answer[i]
     print(sum)
-
-
