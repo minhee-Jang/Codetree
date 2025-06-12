@@ -15,6 +15,7 @@ def inrange(r, c):
             c = 0
         return r, c
 
+
 def pickAttacker(score, att): # 점수판, attack 이력
     # 공격력 가장 낮은 포탑 (공격자) / 공격력 가장 높은 포탑 (대상자)
     minAtt = (50000, 0, 0, 0)   # 공격력 낮은 / 최신 공격/ r+c 큰/ c가 큰
@@ -33,7 +34,6 @@ def pickAttacker(score, att): # 점수판, attack 이력
                 if maxAtt < turn:
                     maxAtt = turn  #
                     toWhere = (r, c)
-
     return attacker, toWhere
 
 def RaiserAtt(topScore, start, end):
@@ -91,17 +91,16 @@ if __name__=="__main__":
     attack = [[0 for _ in range(M)] for _ in range(N)]
     haveAttack = []
 
-    cnt = 0
+    top = 0
     for _ in range(N):
         t = list(map(int, input().split()))
         topScore.append(t)
         zero = t.count(0)
-        cnt += (M - zero)
+        top += (M - zero)
 
 
     for i in range(K):
-        if cnt ==1:
-            break
+        cnt = 0
         fromAtt, to = pickAttacker(topScore, attack)
         attack[fromAtt[0]][fromAtt[1]] = -(i+1)
         topScore[fromAtt[0]][fromAtt[1]] += (N + M)
@@ -116,11 +115,13 @@ if __name__=="__main__":
                 # 부서짐
                 if topScore[a][b] <=0:
                     topScore[a][b] = 0
-                    cnt -= 1
+                    cnt += 1
                 # 포탑 정비
                 if (a, b) not in group:
                     if topScore[a][b] >0 : #부서지지 않은 포탑 중 공격과 무관
                         topScore[a][b] += 1
+        if N*M - cnt == 1:
+            break
 
     # answer
     ans = max([max(row) for row in topScore])
