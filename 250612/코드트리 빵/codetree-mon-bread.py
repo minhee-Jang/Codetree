@@ -1,5 +1,6 @@
 from collections import deque
 D = [(-1, 0), (0, -1), (0, 1), (1, 0)] # 상 좌 우 하 우선순위
+
 def inrange(r, c):
     return 0<=r<N and 0<=c<N
 
@@ -39,14 +40,12 @@ def Go(turn, cant):
         if visited[i]: continue
         q = deque([(now[i][0], now[i][1], [])])  # 현재 위치/ 이동 경로
         v = [[False for _ in range(N)] for _ in range(N)]
-        v[now[i][0]][now[i][1]] = True
-        # 이동해야하는 사람 BFS
-        # 상좌우하 4방향
+        v[now[i][0]][now[i][1]] = True 
         flag = True
 
         while flag:
             r, c, route = q.popleft()
-            for dr, dc in D:  # 먼저 가보는 순서로 q에 append
+            for dr, dc in D:  
                 nr, nc = r + dr, c + dc
                 if not inrange(nr, nc): continue
                 if v[nr][nc] == True: continue
@@ -64,7 +63,7 @@ def Go(turn, cant):
                         break
                     else:
                         route.append((r, c))
-                        now[i] = route[1]  # 0은 출발위치일테니까
+                        now[i] = route[1]  
                         flag = False
                         break
                 else:
@@ -89,15 +88,15 @@ if __name__=="__main__":
     now = {i:(0,0) for i in range(1, M+1)} # 지금 위치
     visited = {i: False for i in range(1, M+1)} # 방문 여부
 
-    # 0 빈칸 1 베이스캠프 2 편의점
+    
     for i in range(1, M+1):
         r, c = map(int, input().split())
         want[i] = (r-1, c-1)
         game[r-1][c-1] = 2
 
+    ############################################################
     Done = []
-     # 계속하기
-    minute = 0  # 시간 최대로 걸릴려면 N*N인가 ...
+    minute = 0  
     while len(Done) != M: # 모두가 완료할때까지
         minute += 1
         cant = []
