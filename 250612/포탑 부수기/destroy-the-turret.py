@@ -26,7 +26,6 @@ def pickAttacker(score, att): # 점수판, attack 이력
         for c in range(M):
             if score[r][c] !=0: # 부서진 포탑 x
                 turn = (score[r][c], att[r][c], -(r+c), -c)
-
                 if minAtt > turn: # 공격자 업데이트
                     minAtt = turn
                     attacker = (r, c)
@@ -70,7 +69,7 @@ def RaiserAtt(topScore, start, end):
 def BombAtt(topScore, start, end):
     group = [start, end]
     (r, c) = end
-    point = topScore[end[0]][end[1]]
+    point = topScore[start[0]][start[1]]
     topScore[end[0]][end[1]] -= point
     halfp = point // 2
 
@@ -104,8 +103,10 @@ if __name__=="__main__":
         if cnt ==1:
             break
         fromAtt, to = pickAttacker(topScore, attack)
+        attack[fromAtt[0]][fromAtt[1]] = -(i+1)
         topScore[fromAtt[0]][fromAtt[1]] += (N + M)
         topScore, find, group = RaiserAtt(topScore, fromAtt, to)
+
         if not find:
             # 포탄 던지기 공격
             topScore, group = BombAtt(topScore, fromAtt, to)
