@@ -10,7 +10,6 @@ def inrange(r, c, dr, dc, d):
         return r - dr, c - dc, d
 
 def pickGun(gun, gOption, game, nr, nc, i):
-
     maxGun = max(gOption)
     if gun[i] == 0:  # p는 총 없음
         gun[i] = maxGun
@@ -28,7 +27,6 @@ def move(player, i, game): # 사람 있는지 확인, 그리고 업데이트
     global pLoc, gun
     ((r, c), d, s) = player[i]
     nr, nc, d = inrange(r, c, D[d][0], D[d][1], d) # 다음 이동방향
-
     if pLoc[nr][nc] >0: # P 있음
         pLoc[r][c] = 0
         pLoc[nr][nc] = (i, pLoc[nr][nc])
@@ -56,14 +54,14 @@ def fight(player, i, gun, game):
 
     if cAtt>eAtt: win, lose = p1, p2
     else: win, lose = p2, p1
-    ans[win] = (gun[win] + player[win][2]) - (gun[lose] + player[lose][2])
-
+    ans[win] += (gun[win] + player[win][2]) - (gun[lose] + player[lose][2])
     # loser -> 총을 내려놓고, 원래 가진 방향대로 이동, 다른플레이어나 격자 범위 바깥이면 오른족으로 90 회전. 이동 후 pickgun
     if gun[lose] !=0:
         game[er][ec].append(gun[lose])
     gun[lose] = 0
     for a in range(player[lose][1], player[lose][1]+4):
         i = a%4
+        #print(i)
         dr, dc = D[i][0], D[i][1]
         nr, nc = er+dr, ec+dc
         if (0<=nr<N and 0<=nc<N) and pLoc[nr][nc]==0: # 이동가능
@@ -76,9 +74,9 @@ def fight(player, i, gun, game):
             break
 
     gOption = game[player[win][0][0]][player[win][0][1]][:] # 총 옵션
-    
     if gOption:
         gun, game = pickGun(gun, gOption, game, player[win][0][0], player[win][0][1], win)
+
     pLoc[player[win][0][0]][player[win][0][1]] = win
 
     return  gun, game
@@ -106,7 +104,8 @@ if __name__ == '__main__':
     for k in range(K):
         for i in range(1, M+1): # 모든 플레이어 이동
             game, player, anyone = move(player, i, game)
+
             if anyone: # 싸움 시작
                 gun, game = fight(player, i, gun, game)
-
+            
     print(*ans[1:])
