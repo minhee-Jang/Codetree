@@ -23,10 +23,10 @@ def moveMicro(prior, loc, t):
 
     n=0
     while n<len(prior):
-
         if not alive[prior[n][1]]: continue
         minr, minc, maxr, maxc = minmax(prior[n][2]) # 최대최소
         dr, dc = maxr - minr, maxc - minc
+        # 해당 newEX 짤라서 -> 합이 0인지 확인 -> 맞으면 붙이고 아니면 이동
         for c in range(N): # c가 작을수록
 
              if put[prior[n][1]] == True: break
@@ -44,7 +44,6 @@ def moveMicro(prior, loc, t):
                         if not possible: break
                     # 좌표 계산
                     if possible:
-
                         put[prior[n][1]] = True
                         br, bc = r - minr, c - minc
                         newR = []
@@ -69,23 +68,26 @@ def result(ex):
     ans = 0
     q = deque([(0,0)])
     visited = [[False for _ in range(N)] for _ in range(N)]
+
     meet = []
 
     while q:
         r, c = q.popleft()
+        visited[r][c] = True
         for dr, dc in D:
             nr, nc = r + dr, c + dc
             if in_range(nr, nc) and not visited[nr][nc]:
                 q.append((nr, nc))
-                visited[nr][nc] = True
+                #visited[nr][nc] = True
+                #print(ex[r][c], ex[nr][nc])
+
                 if ex[r][c] != ex[nr][nc] and ex[r][c] !=0 and ex[nr][nc] != 0: # 둘이 다른 종이
                     if (ex[r][c], ex[nr][nc]) not in meet and (ex[nr][nc], ex[r][c]) not in meet:
                         meet.append((ex[r][c], ex[nr][nc]))
-
     for a, b in meet:
         ans += loc[a][0]*loc[b][0]
-
     print(ans)
+    
     return
 
 def putMicro(ex, micro, n, loc):  # 배양용기는 moveMicro에서 시작됨
@@ -94,7 +96,11 @@ def putMicro(ex, micro, n, loc):  # 배양용기는 moveMicro에서 시작됨
     r1, c1, r2, c2 = micro
     for i in range(r1, r2+1):
         for j in range(c1, c2+1):
+            if ex[i][j]>0:
+                alive[ex[i][j]] = False
+                loc[ex[i][j]][2] = []
             ex[i][j] = n # 현재 미생물
+
 
     visited = [[False for _ in range(N)] for _ in range(N)]
     find = {i:False for i in range(1, n+1)}
@@ -127,17 +133,16 @@ def putMicro(ex, micro, n, loc):  # 배양용기는 moveMicro에서 시작됨
                             cnt +=1
                 loc[m][0] = cnt
     # Loc 업데이트, Kill 진행
-
     for i in kill:
         for kr, kc in loc[i][2]:
             ex[kr][kc] = 0
         alive[i] = False
         loc[i][2] = []
 
-    for i in range(n):
-        if not find[i+1]:
+    for i in range(1, n+1):
+        if not find[i]:
             alive[i] = False
-            loc[i+1][2] = []
+            loc[i][2] = []
 
     return ex, loc
 
