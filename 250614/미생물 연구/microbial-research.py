@@ -95,10 +95,7 @@ def putMicro(ex, micro, n, loc):  # 배양용기는 moveMicro에서 시작됨
 
     r1, c1, r2, c2 = micro
     for i in range(r1, r2+1):
-        for j in range(c1, c2+1):
-            if ex[i][j]>0:
-                alive[ex[i][j]] = False
-                loc[ex[i][j]][2] = []
+        for j in range(c1, c2+1): 
             ex[i][j] = n # 현재 미생물
 
 
